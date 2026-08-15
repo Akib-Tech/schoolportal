@@ -1,0 +1,64 @@
+.cta-banner {
+  padding-block: 40px;
+}
+
+.cta-banner-inner {
+  background: var(--mint-100);
+  border-radius: 22px;
+  padding: 26px 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.cta-banner-copy {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cta-banner-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--forest);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cta-banner-copy p {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.cta-banner-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 620px) {
+  .cta-banner-inner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .cta-banner-copy {
+    flex-direction: column;
+  }
+
+  .cta-banner-actions {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .cta-banner-actions .btn {
+    flex: 1;
+  }
+}

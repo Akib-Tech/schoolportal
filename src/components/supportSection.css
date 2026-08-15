@@ -1,0 +1,354 @@
+.support {
+  padding-block: 40px 70px;
+}
+
+.support-inner {
+  display: grid;
+  grid-template-columns: 1fr 300px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.support-title {
+  font-size: 36px;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  margin: 16px 0 14px;
+}
+
+.support-title .accent {
+  color: var(--lime);
+}
+
+.support-desc {
+  font-size: 15.5px;
+  color: var(--text);
+  max-width: 380px;
+  margin-bottom: 26px;
+}
+
+.support-types {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.support-types li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.support-types li:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: transparent;
+}
+
+.support-type-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--forest-dark);
+  flex-shrink: 0;
+}
+
+.support-type-copy {
+  flex: 1;
+  text-align: left;
+}
+
+.support-type-copy h3 {
+  font-size: 14.5px;
+  margin-bottom: 2px;
+}
+
+.support-type-copy p {
+  font-size: 12.5px;
+  color: var(--text-soft);
+}
+
+.support-type-chevron {
+  color: var(--text-soft);
+  flex-shrink: 0;
+}
+
+/* ---------- phone mockup ---------- */
+.support-col-mid {
+  display: flex;
+  justify-content: center;
+}
+
+.phone {
+  width: 280px;
+  background: #fff;
+  border: 8px solid #17181c;
+  border-radius: 38px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+.phone-notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 20px;
+  background: #17181c;
+  border-radius: 0 0 14px 14px;
+  z-index: 2;
+}
+
+.phone-status {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-h);
+  padding: 10px 18px 0;
+}
+
+.phone-status-icons {
+  letter-spacing: 1px;
+}
+
+.phone-screen {
+  padding: 10px 16px 14px;
+  text-align: left;
+}
+
+.phone-screen h4 {
+  font-size: 16px;
+  margin-top: 4px;
+}
+
+.phone-sub {
+  font-size: 11.5px;
+  color: var(--text-soft);
+  margin: 3px 0 12px;
+}
+
+.phone-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.phone-tabs span {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--mint-100);
+  color: var(--text-soft);
+}
+
+.phone-tabs span.is-active {
+  background: var(--forest);
+  color: #fff;
+}
+
+.phone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phone-expert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--mint-100);
+  position: relative;
+}
+
+.phone-expert-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--forest-dark);
+  flex-shrink: 0;
+}
+
+.phone-expert-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.phone-expert-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.phone-expert-rating {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10.5px;
+  color: var(--text-soft);
+  flex-shrink: 0;
+}
+
+.phone-expert-role {
+  font-size: 10px;
+  color: var(--forest);
+  font-weight: 600;
+}
+
+.phone-expert-copy p {
+  font-size: 10.5px;
+  color: var(--text-soft);
+  margin-top: 2px;
+}
+
+.phone-expert-online {
+  position: absolute;
+  bottom: 9px;
+  right: 9px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--lime);
+  border: 1.5px solid #fff;
+}
+
+.phone-tabbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.phone-tabbar span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 8.5px;
+  color: var(--text-soft);
+}
+
+.phone-tabbar span:first-child {
+  color: var(--forest);
+}
+
+/* ---------- testimonials + crisis ---------- */
+.support-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.testimonial-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+}
+
+.testimonial-quote-mark {
+  font-size: 30px;
+  line-height: 1;
+  color: var(--lime);
+  font-weight: 700;
+}
+
+.testimonial-card p {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text-h);
+  margin: 6px 0 14px;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+.testimonial-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.crisis-card {
+  background: var(--mint-100);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+}
+
+.crisis-title {
+  font-weight: 700;
+  color: var(--text-h);
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.crisis-desc {
+  font-size: 12.5px;
+  color: var(--text-soft);
+  margin-bottom: 10px;
+}
+
+.crisis-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--forest);
+  text-decoration: none;
+}
+
+.crisis-icon {
+  color: var(--forest);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1080px) {
+  .support-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .support-col-left,
+  .support-col-right {
+    max-width: 460px;
+    margin: 0 auto;
+  }
+
+  .support-desc {
+    margin-inline: auto;
+  }
+}

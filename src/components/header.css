@@ -1,0 +1,119 @@
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.site-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-block: 14px;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.site-nav a {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  padding-bottom: 6px;
+  border-bottom: 2px solid transparent;
+}
+
+.site-nav a.is-active {
+  color: var(--text-h);
+  border-bottom-color: var(--forest);
+}
+
+.site-nav a:hover {
+  color: var(--forest);
+}
+
+.site-nav-actions {
+  display: none;
+}
+
+.site-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.site-header-actions .btn,
+.site-nav-actions .btn {
+  padding: 5px 20px;
+  font-size: 14px;
+}
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 6px;
+}
+
+.nav-toggle span {
+  width: 22px;
+  height: 2px;
+  background: var(--text-h);
+  border-radius: 2px;
+}
+
+@media (max-width: 900px) {
+  .site-nav {
+    position: fixed;
+    inset: 66px 0 0 0;
+    background: var(--white);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 8px 24px 24px;
+    transform: translateY(-8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+  }
+
+  .site-nav.is-open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .site-nav a {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .site-nav-actions {
+    display: flex;
+    gap: 10px;
+    padding-top: 16px;
+  }
+
+  .site-nav-actions .btn {
+    flex: 1;
+  }
+
+  .site-header-actions {
+    display: none;
+  }
+
+  .nav-toggle {
+    display: flex;
+  }
+}

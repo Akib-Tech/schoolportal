@@ -1,0 +1,39 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-mark {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  text-align: left;
+}
+
+.logo-text strong {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.logo-text small {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-soft);
+  letter-spacing: 0.2px;
+}
+
+.logo-light .logo-text strong {
+  color: #ffffff;
+}
+
+.logo-light .logo-text small {
+  color: rgba(255, 255, 255, 0.65);
+}

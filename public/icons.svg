@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="star-icon" viewBox="0 0 20 20">
+    <path fill="#f5a623" d="M10 1.5l2.59 5.25 5.79.84-4.19 4.09.99 5.77L10 14.77l-5.18 2.68.99-5.77-4.19-4.09 5.79-.84z"/>
+  </symbol>
+
+  <symbol id="heart-icon" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M12 20.5s-7.5-4.6-10-9.3C.4 8 1.6 4.5 5 3.4c2.2-.7 4.4.2 6 2.1 1.6-1.9 3.8-2.8 6-2.1 3.4 1.1 4.6 4.6 3 7.8-2.5 4.7-10 9.3-10 9.3Z"/>
+  </symbol>
+
+  <symbol id="shield-icon" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M12 2.5l7.5 3v5.2c0 5-3.2 8.7-7.5 10.8-4.3-2.1-7.5-5.8-7.5-10.8V5.5Z"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8.75 12.25l2.1 2.1 4.4-4.4"/>
+  </symbol>
+
+  <symbol id="user-icon" viewBox="0 0 24 24">
+    <circle cx="12" cy="8" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M4.5 20c1.4-3.6 4.3-5.5 7.5-5.5s6.1 1.9 7.5 5.5"/>
+  </symbol>
+
+  <symbol id="leaf-icon" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M5 19c8-1 12-6 13-13-8 1-12 6-13 13Z"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M5 19c0-4 1.5-7 4.5-9.5"/>
+  </symbol>
+
+  <symbol id="ear-icon" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M15 4a6 6 0 0 0-6 6c0 2.5 1.5 3.5 1.5 5.5a2.5 2.5 0 0 1-2.5 2.5"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M15 4a7.5 7.5 0 0 1 7.5 7.5c0 3-1.5 4-1.5 6.5"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M9 10a2.2 2.2 0 0 1 2.2-2.2"/>
+  </symbol>
+
+  <symbol id="coach-icon" viewBox="0 0 24 24">
+    <circle cx="12" cy="7" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M5 20c1.2-3.8 4-5.8 7-5.8s5.8 2 7 5.8"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M17.5 6.5l1.3-1.3M18.8 9.3l1.7.4"/>
+  </symbol>
+
+  <symbol id="psych-icon" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9 3.5c-2.5 0-4 2-4 4.2 0 1 .3 1.7-.3 2.5C4 11 3.5 12 4.3 12.8c.6.6 1.3.4 1.7.9.5.6.2 1.5.9 2 .6.4 1.4.1 1.9.6.5.6.2 1.6 1.1 1.8"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M11 3.7c3-.8 6 1.3 6 4.5 0 1.4.6 1.8 1.4 2.6.8.8.6 2-.4 2.4-.9.4-1 .8-1 1.7 0 1.3-1 1.8-2.1 1.6"/>
+    <circle cx="9.8" cy="8.3" r=".9" fill="currentColor" stroke="none"/>
+  </symbol>
+
+  <symbol id="chat-icon" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8c-1 0-2-.2-2.9-.5L4 20l1-4.3C4.4 14.5 4 13.3 4 12Z"/>
+  </symbol>
+
+  <symbol id="send-icon" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M3.4 20.6l18-8.6-18-8.6v6.7l12 1.9-12 1.9z"/>
+  </symbol>
+
+  <symbol id="check-icon" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.12"/>
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M7.5 12.5l3 3 6-6.5"/>
+  </symbol>
+
+  <symbol id="chevron-icon" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+  </symbol>
+
+  <symbol id="home-icon" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M4 11.5 12 5l8 6.5M6 10v9h12v-9"/>
+  </symbol>
+
+  <symbol id="explore-icon" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    <path fill="currentColor" stroke="none" d="M15 9l-2 4-4 2 2-4z"/>
+  </symbol>
+
+  <symbol id="journal-icon" viewBox="0 0 24 24">
+    <rect x="5" y="4" width="14" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M9 8.5h6M9 12h6M9 15.5h4"/>
+  </symbol>
+
+  <symbol id="profile-icon" viewBox="0 0 24 24">
+    <circle cx="12" cy="8.5" r="3.3" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M5.2 19.5c1.3-3.3 3.9-5 6.8-5s5.5 1.7 6.8 5"/>
+  </symbol>
+
+  <symbol id="search-icon" viewBox="0 0 24 24">
+    <circle cx="10.5" cy="10.5" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M15 15l5 5"/>
+  </symbol>
+
+  <symbol id="apple-icon" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M17.05 12.2c-.03-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.15-2.8.85-3.5.85-.7 0-1.9-.83-3.1-.8-1.6.02-3.1.94-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.2 1.7 2.5 3 2.4 1.2-.05 1.6-.75 3.1-.75s1.9.75 3.1.73c1.3-.02 2.1-1.2 2.9-2.4.9-1.4 1.3-2.7 1.3-2.8-.03 0-2.6-1-2.7-3.85z"/>
+    <path fill="currentColor" d="M14.9 5.4c.6-.75 1-1.8.9-2.9-.9.05-2 .6-2.6 1.35-.55.65-1.05 1.75-.9 2.8 1 .08 2-.5 2.6-1.25z"/>
+  </symbol>
+
+  <symbol id="play-icon" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M4 3.5 20 12 4 20.5Z"/>
+  </symbol>
+
+  <symbol id="instagram-icon" viewBox="0 0 24 24">
+    <rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    <circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    <circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/>
+  </symbol>
+
+  <symbol id="facebook-icon" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M14 8.5h-1.5c-1 0-1.5.6-1.5 1.6V12H14l-.4 2.4h-2.1V21"/>
+  </symbol>
+
+  <symbol id="twitter-icon" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M20 5.8c-.7.3-1.5.6-2.3.7.8-.5 1.4-1.3 1.7-2.2-.8.5-1.7.8-2.6 1a4.1 4.1 0 0 0-7 3.7A11.6 11.6 0 0 1 1.4 4.9a4.1 4.1 0 0 0 1.3 5.5c-.7 0-1.3-.2-1.8-.5 0 2 1.4 3.7 3.3 4.1-.6.2-1.2.2-1.8.1.5 1.6 2 2.8 3.8 2.9A8.3 8.3 0 0 1 0 18.6a11.6 11.6 0 0 0 6.3 1.9c7.5 0 11.7-6.3 11.7-11.7v-.5c.8-.6 1.5-1.3 2-2.1z"/>
+  </symbol>
+
+  <symbol id="linkedin-icon" viewBox="0 0 24 24">
+    <rect x="3.5" y="3.5" width="17" height="17" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    <path fill="currentColor" stroke="none" d="M7.2 9.8h2v7.2h-2zM8.2 6.5a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3z"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M11.5 17v-4.2c0-1.6 1-2.4 2.2-2.4 1.2 0 2 .8 2 2.3V17"/>
+  </symbol>
+</svg>

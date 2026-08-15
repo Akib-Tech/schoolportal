@@ -1,0 +1,155 @@
+.ring-section {
+  background: linear-gradient(165deg, var(--forest) 0%, var(--forest-deep) 100%);
+  padding-block: 64px;
+  border-radius: 32px;
+  margin-inline: 24px;
+  max-width: 1240px;
+  margin-inline: auto;
+}
+
+.ring-inner {
+  display: grid;
+  grid-template-columns: 1fr 320px 1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+.eyebrow-light {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--lime-light);
+}
+
+.ring-title {
+  color: #fff;
+  font-size: 30px;
+  margin: 16px 0 12px;
+}
+
+.ring-desc {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14.5px;
+  line-height: 1.6;
+  max-width: 340px;
+  margin-bottom: 22px;
+}
+
+.ring-features {
+  list-style: none;
+  margin: 0 0 26px;
+  padding: 0;
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.ring-features li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.ring-features svg {
+  color: var(--lime-light);
+}
+
+.ring-col-mid {
+  display: flex;
+  justify-content: center;
+}
+
+.device-stage {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  min-height: 400px;
+  background: linear-gradient(160deg, #eef6ee, #ffffff);
+  border-radius: 28px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  padding: 24px 18px;
+}
+
+.device-ring {
+  width: 42%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: 70% 35%;
+  border-radius: 18px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  z-index: 1;
+  margin-right: -14%;
+  margin-bottom: 8px;
+}
+
+.device-phone {
+  width: 66%;
+  aspect-ratio: 0.62;
+  object-fit: cover;
+  object-position: 78% top;
+  border-radius: 22px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  z-index: 2;
+}
+
+.ring-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ring-benefit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 14.5px;
+  font-weight: 500;
+}
+
+.ring-benefit svg {
+  color: var(--lime-light);
+  flex-shrink: 0;
+}
+
+@media (max-width: 980px) {
+  .ring-section {
+    margin-inline: 16px;
+    border-radius: 24px;
+  }
+
+  .ring-inner {
+    grid-template-columns: 1fr;
+    text-align: center;
+    justify-items: center;
+  }
+
+  .ring-desc {
+    margin-inline: auto;
+  }
+
+  .ring-features {
+    justify-content: center;
+  }
+
+  .ring-features li {
+    align-items: center;
+  }
+
+  .ring-col-right {
+    align-items: center;
+  }
+
+  .ring-col-mid {
+    order: -1;
+    margin-bottom: 8px;
+  }
+}
