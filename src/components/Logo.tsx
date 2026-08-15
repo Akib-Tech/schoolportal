@@ -1,5 +1,5 @@
 import './logo.css'
-import aaloneLogo from '../assets/images/Aalone_Logo.png'
+import aaloneLogo from '../assets/images/aalone_Logo.png'
 
 interface LogoProps {
   variant?: 'dark' | 'light'
