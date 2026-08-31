@@ -1,0 +1,119 @@
+.admin-page {
+  min-height: 100svh;
+  background: var(--cream);
+  padding-block: 40px;
+}
+
+.admin-page-inner {
+  max-width: 860px;
+}
+
+.admin-page h1 {
+  font-size: 24px;
+}
+
+.admin-page-sub {
+  color: var(--text-soft);
+  margin-top: 8px;
+  margin-bottom: 28px;
+  max-width: 620px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-table th {
+  background: var(--mint-100);
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--text-soft);
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.role-badge {
+  display: inline-flex;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.role-badge.role-user {
+  background: var(--mint-100);
+  color: var(--forest);
+}
+
+.role-badge.role-rep {
+  background: var(--mint-pill);
+  color: var(--forest-dark);
+}
+
+.role-badge.role-superadmin {
+  background: var(--forest);
+  color: var(--white);
+}
+
+.admin-table-actions .btn {
+  padding: 7px 16px;
+  font-size: 13px;
+}
+
+.admin-table-muted {
+  color: var(--text-soft);
+}
+
+.admin-add-form {
+  margin-top: 32px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.admin-add-form h2 {
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+
+.admin-add-fields {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-add-fields input {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  font: inherit;
+  font-size: 14px;
+}
+
+.admin-add-fields input:focus {
+  outline: none;
+  border-color: var(--forest);
+}
+
+.admin-add-fields .btn {
+  padding: 10px 22px;
+}

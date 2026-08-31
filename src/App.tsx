@@ -1,25 +1,23 @@
-import Header from './components/Header'
-import Hero from './components/Hero'
-import StatsBar from './components/StatsBar'
-import SupportSection from './components/SupportSection'
-import SmartRing from './components/SmartRing'
-import CtaBanner from './components/CtaBanner'
-import Footer from './components/Footer'
+import { Route, Routes } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import IdentityBar from './components/IdentityBar'
+import HomePage from './pages/HomePage'
+import ChatPage from './pages/ChatPage'
+import RepInboxPage from './pages/RepInboxPage'
+import AdminPage from './pages/AdminPage'
 import './App.css'
 
 function App() {
   return (
-    <>
-      <Header />
-      <main>
-        <Hero />
-        <StatsBar />
-        <SupportSection />
-        <SmartRing />
-        <CtaBanner />
-      </main>
-      <Footer />
-    </>
+    <AuthProvider>
+      <IdentityBar />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/rep" element={<RepInboxPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+      </Routes>
+    </AuthProvider>
   )
 }
 

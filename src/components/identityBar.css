@@ -1,0 +1,57 @@
+.identity-bar {
+  background: var(--forest-deep);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.identity-bar-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding-block: 8px;
+  font-size: 13px;
+}
+
+.identity-bar-tag {
+  font-weight: 700;
+  color: var(--lime-light);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.identity-bar-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.identity-bar-select select {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font: inherit;
+}
+
+.identity-bar-select select option {
+  color: var(--text-h);
+}
+
+.identity-bar-links {
+  display: flex;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.identity-bar-links a {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.identity-bar-links a:hover {
+  color: var(--lime-light);
+}
