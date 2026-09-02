@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { Navigate } from 'react-router-dom'
+import ChatTimer from '../components/ChatTimer'
 import { useAuth } from '../context/AuthContext'
-import { getConversation, getPeople, listConversations, sendMessage } from '../lib/chatStore'
+import {
+  getConversation,
+  getPeople,
+  getSession,
+  listConversations,
+  sendMessage,
+  startSession,
+} from '../lib/chatStore'
 import { useLiveStore } from '../lib/useLiveStore'
 import './repInbox.css'
 
@@ -18,21 +26,27 @@ export default function RepInboxPage() {
     () => (activeId ? getConversation(activeId) : []),
     [activeId],
   )
+  const session = useLiveStore(() => (activeId ? getSession(activeId) : null), [activeId])
   const activePerson = people.find((p) => p.id === activeId)
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: 'end' })
   }, [messages.length])
 
+  if (!currentUser) return <Navigate to="/login" replace />
   if (currentUser.role !== 'rep' && currentUser.role !== 'superadmin') {
     return <Navigate to="/chat" replace />
   }
 
+  const ended = session?.status === 'ended'
+  const paused = session?.status === 'paused'
+  const locked = ended || paused
+
   function handleSend(e: React.FormEvent) {
     e.preventDefault()
-    if (!draft.trim() || !activeId) return
-    sendMessage(activeId, currentUser, draft)
-    setDraft('')
+    if (!draft.trim() || !activeId || locked || !currentUser) return
+    const sent = sendMessage(activeId, currentUser, draft)
+    if (sent) setDraft('')
   }
 
   return (
@@ -62,12 +76,14 @@ export default function RepInboxPage() {
       </aside>
 
       <section className="rep-inbox-thread">
-        {activePerson ? (
+        {activePerson && activeId ? (
           <>
             <header>
               <h1>{activePerson.name}</h1>
               <p>{activePerson.email}</p>
             </header>
+
+            <ChatTimer conversationId={activeId} />
 
             <div className="rep-inbox-messages">
               {messages.map((m) => {
@@ -84,18 +100,32 @@ export default function RepInboxPage() {
               <div ref={endRef} />
             </div>
 
-            <form className="rep-inbox-input" onSubmit={handleSend}>
-              <input
-                type="text"
-                placeholder="Reply as Aalone Support…"
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-              />
-              <button type="submit" className="btn btn-primary" disabled={!draft.trim()}>
-                <svg width="16" height="16"><use href="/icons.svg#send-icon" /></svg>
-                Send
-              </button>
-            </form>
+            {ended ? (
+              <div className="rep-inbox-closed">
+                <span>This chat has ended and its time was billed.</span>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => startSession(activeId, currentUser)}
+                >
+                  Start a new session
+                </button>
+              </div>
+            ) : (
+              <form className="rep-inbox-input" onSubmit={handleSend}>
+                <input
+                  type="text"
+                  placeholder={paused ? 'Chat paused — resume to continue' : 'Reply as Aalone Support…'}
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  disabled={paused}
+                />
+                <button type="submit" className="btn btn-primary" disabled={!draft.trim() || locked}>
+                  <svg width="16" height="16"><use href="/icons.svg#send-icon" /></svg>
+                  Send
+                </button>
+              </form>
+            )}
           </>
         ) : (
           <p className="rep-inbox-empty">Select a conversation to reply.</p>

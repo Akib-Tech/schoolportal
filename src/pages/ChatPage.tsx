@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Logo from '../components/Logo'
+import ChatTimer from '../components/ChatTimer'
 import { useAuth } from '../context/AuthContext'
-import { getConversation, sendMessage } from '../lib/chatStore'
+import { getConversation, getSession, sendMessage, startSession } from '../lib/chatStore'
 import { useLiveStore } from '../lib/useLiveStore'
 import './chatPage.css'
 
 export default function ChatPage() {
   const { currentUser } = useAuth()
-  const conversationId = currentUser.id
+  const conversationId = currentUser?.id ?? ''
   const messages = useLiveStore(() => getConversation(conversationId), [conversationId])
+  const session = useLiveStore(() => getSession(conversationId), [conversationId])
   const [draft, setDraft] = useState('')
   const endRef = useRef<HTMLDivElement>(null)
 
@@ -17,11 +19,17 @@ export default function ChatPage() {
     endRef.current?.scrollIntoView({ block: 'end' })
   }, [messages.length])
 
+  if (!currentUser) return null
+
+  const ended = session?.status === 'ended'
+  const paused = session?.status === 'paused'
+  const locked = ended || paused
+
   function handleSend(e: React.FormEvent) {
     e.preventDefault()
-    if (!draft.trim()) return
-    sendMessage(conversationId, currentUser, draft)
-    setDraft('')
+    if (!draft.trim() || locked || !currentUser) return
+    const sent = sendMessage(conversationId, currentUser, draft)
+    if (sent) setDraft('')
   }
 
   return (
@@ -47,6 +55,8 @@ export default function ChatPage() {
             </div>
           </div>
 
+          <ChatTimer conversationId={conversationId} />
+
           <div className="chat-thread-messages">
             {messages.length === 0 && (
               <p className="chat-thread-empty">
@@ -54,11 +64,12 @@ export default function ChatPage() {
               </p>
             )}
             {messages.map((m) => {
+              
               const isMine = m.senderRole === 'user'
               return (
                 <div key={m.id} className={`chat-bubble-row ${isMine ? 'is-mine' : 'is-support'}`}>
                   <div className="chat-bubble">
-                    {!isMine && <span className="chat-bubble-sender">Aalone Support</span>}
+                    {!isMine && <span className="chat-bubble-sender">{m.senderName}</span>}
                     <p>{m.text}</p>
                   </div>
                 </div>
@@ -67,18 +78,32 @@ export default function ChatPage() {
             <div ref={endRef} />
           </div>
 
-          <form className="chat-thread-input" onSubmit={handleSend}>
-            <input
-              type="text"
-              placeholder="Type your message…"
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-            />
-            <button type="submit" className="btn btn-primary" disabled={!draft.trim()}>
-              <svg width="16" height="16"><use href="/icons.svg#send-icon" /></svg>
-              Send
-            </button>
-          </form>
+          {ended ? (
+            <div className="chat-thread-closed">
+              <p>This chat has ended and its time was billed.</p>
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={() => startSession(conversationId, currentUser)}
+              >
+                Start a new session
+              </button>
+            </div>
+          ) : (
+            <form className="chat-thread-input" onSubmit={handleSend}>
+              <input
+                type="text"
+                placeholder={paused ? 'Chat paused — resume to continue' : 'Type your message…'}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                disabled={paused}
+              />
+              <button type="submit" className="btn btn-primary" disabled={!draft.trim() || locked}>
+                <svg width="16" height="16"><use href="/icons.svg#send-icon" /></svg>
+                Send
+              </button>
+            </form>
+          )}
         </div>
       </main>
     </div>

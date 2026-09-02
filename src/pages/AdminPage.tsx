@@ -17,7 +17,7 @@ export default function AdminPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
 
-  if (currentUser.role !== 'superadmin') {
+  if (!currentUser || currentUser.role !== 'superadmin') {
     return <Navigate to="/" replace />
   }
 

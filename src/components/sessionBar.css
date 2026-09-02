@@ -1,0 +1,93 @@
+.session-bar {
+  background: var(--forest-deep);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.session-bar-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  padding-block: 9px;
+  font-size: 13px;
+}
+
+.session-bar-who {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.session-bar-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--lime);
+  color: var(--forest-deep);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.session-bar-name {
+  font-weight: 600;
+  color: var(--white);
+}
+
+.session-bar-role {
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--lime-light);
+}
+
+.session-bar-role.role-superadmin {
+  background: var(--lime);
+  color: var(--forest-deep);
+}
+
+.session-bar-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.session-bar-links a {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.session-bar-links a:hover {
+  color: var(--lime-light);
+}
+
+.session-bar-logout {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: var(--white);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.session-bar-logout:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+@media (max-width: 640px) {
+  .session-bar-links {
+    width: 100%;
+    margin-left: 0;
+    gap: 14px;
+  }
+}

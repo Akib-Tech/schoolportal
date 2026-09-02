@@ -3,15 +3,19 @@ import {
   ensureSeeded,
   getPeople,
   getCurrentUserId,
-  setCurrentUserId,
+  login as loginStore,
+  logout as logoutStore,
+  signup as signupStore,
   STORE_UPDATE_EVENT,
+  type AuthResult,
   type Person,
 } from '../lib/chatStore'
 
 interface AuthContextValue {
-  currentUser: Person
-  people: Person[]
-  switchUser: (id: string) => void
+  currentUser: Person | null
+  login: (email: string, password: string) => AuthResult
+  signup: (name: string, email: string, password: string) => AuthResult
+  logout: () => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -19,13 +23,13 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 ensureSeeded()
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [people, setPeopleState] = useState<Person[]>(() => getPeople())
-  const [currentUserId, setCurrentUserIdState] = useState<string>(() => getCurrentUserId())
+  const [people, setPeople] = useState<Person[]>(() => getPeople())
+  const [currentUserId, setCurrentUserId] = useState<string | null>(() => getCurrentUserId())
 
   useEffect(() => {
     const refresh = () => {
-      setPeopleState(getPeople())
-      setCurrentUserIdState(getCurrentUserId())
+      setPeople(getPeople())
+      setCurrentUserId(getCurrentUserId())
     }
     window.addEventListener(STORE_UPDATE_EVENT, refresh)
     window.addEventListener('storage', refresh)
@@ -35,10 +39,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const currentUser = people.find((p) => p.id === currentUserId) ?? people[0]
+  const currentUser = people.find((p) => p.id === currentUserId) ?? null
 
   return (
-    <AuthContext.Provider value={{ currentUser, people, switchUser: setCurrentUserId }}>
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        login: loginStore,
+        signup: signupStore,
+        logout: logoutStore,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )

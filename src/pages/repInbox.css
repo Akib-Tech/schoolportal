@@ -157,6 +157,28 @@
   cursor: not-allowed;
 }
 
+.rep-inbox-input input:disabled {
+  background: var(--mint-100);
+  cursor: not-allowed;
+}
+
+.rep-inbox-closed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 22px;
+  border-top: 1px solid var(--border);
+  background: var(--white);
+  font-size: 13.5px;
+  color: var(--text-soft);
+}
+
+.rep-inbox-closed .btn {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
 .rep-inbox-empty {
   color: var(--text-soft);
   font-size: 14px;
