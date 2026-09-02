@@ -1,0 +1,60 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Returns null (never throws) for a signed-in user who doesn't have a
+    // people/ doc yet — e.g. mid-signup, before their profile is created.
+    function myRole() {
+      return exists(/databases/$(database)/documents/people/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/people/$(request.auth.uid)).data.role
+        : null;
+    }
+
+    function isStaff() {
+      return signedIn() && myRole() in ['rep', 'superadmin'];
+    }
+
+    function isSuperadmin() {
+      return signedIn() && myRole() == 'superadmin';
+    }
+
+    // A signed-in user checking/consuming the invite that matches their own
+    // Auth email — needed during signup, before they have a people/ doc.
+    function isMyInvite(email) {
+      return signedIn() && request.auth.token.email != null &&
+        request.auth.token.email.lower() == email;
+    }
+
+    match /people/{personId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.auth.uid == personId;
+      allow update: if signedIn() &&
+        (request.auth.uid == personId || isSuperadmin());
+    }
+
+    match /invites/{email} {
+      allow get, delete: if isMyInvite(email) || isSuperadmin();
+      allow list: if isSuperadmin();
+      allow create, update: if isSuperadmin();
+    }
+
+    match /messages/{messageId} {
+      allow read: if signedIn();
+      allow create: if signedIn() &&
+        request.resource.data.senderId == request.auth.uid &&
+        (request.resource.data.conversationId == request.auth.uid || isStaff());
+      allow update, delete: if false;
+    }
+
+    match /sessions/{conversationId} {
+      allow read: if signedIn();
+      allow write: if signedIn() &&
+        (conversationId == request.auth.uid || isStaff());
+    }
+  }
+}

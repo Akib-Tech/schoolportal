@@ -2,31 +2,21 @@ import { useEffect, useRef, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import ChatTimer from '../components/ChatTimer'
 import { useAuth } from '../context/AuthContext'
-import {
-  getConversation,
-  getPeople,
-  getSession,
-  listConversations,
-  sendMessage,
-  startSession,
-} from '../lib/chatStore'
-import { useLiveStore } from '../lib/useLiveStore'
+import { formatTime, sendMessage, startSession } from '../lib/chatStore'
+import { useConversation, useConversations, usePeople, useSession } from '../lib/useChatData'
 import './repInbox.css'
 
 export default function RepInboxPage() {
   const { currentUser } = useAuth()
-  const conversations = useLiveStore(() => listConversations(), [])
-  const people = useLiveStore(() => getPeople(), [])
+  const conversations = useConversations()
+  const people = usePeople()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [draft, setDraft] = useState('')
   const endRef = useRef<HTMLDivElement>(null)
 
   const activeId = selectedId ?? conversations[0]?.userId ?? null
-  const messages = useLiveStore(
-    () => (activeId ? getConversation(activeId) : []),
-    [activeId],
-  )
-  const session = useLiveStore(() => (activeId ? getSession(activeId) : null), [activeId])
+  const messages = useConversation(activeId ?? '')
+  const session = useSession(activeId ?? '')
   const activePerson = people.find((p) => p.id === activeId)
 
   useEffect(() => {
@@ -45,8 +35,8 @@ export default function RepInboxPage() {
   function handleSend(e: React.FormEvent) {
     e.preventDefault()
     if (!draft.trim() || !activeId || locked || !currentUser) return
-    const sent = sendMessage(activeId, currentUser, draft)
-    if (sent) setDraft('')
+    sendMessage(activeId, currentUser, draft)
+    setDraft('')
   }
 
   return (
@@ -91,8 +81,9 @@ export default function RepInboxPage() {
                 return (
                   <div key={m.id} className={`chat-bubble-row ${isSupport ? 'is-mine' : 'is-support'}`}>
                     <div className="chat-bubble">
-                      {isSupport && <span className="chat-bubble-sender">{m.senderName} (you)</span>}
+                      {!isSupport && <span className="chat-bubble-sender">{m.senderName}</span>}
                       <p>{m.text}</p>
+                      <span className="chat-bubble-time">{formatTime(m.createdAt)}</span>
                     </div>
                   </div>
                 )

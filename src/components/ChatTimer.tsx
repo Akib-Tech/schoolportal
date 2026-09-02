@@ -4,14 +4,13 @@ import {
   billableMinutes,
   formatClock,
   formatMoney,
-  getSession,
   pauseSession,
   resumeSession,
   sessionElapsedMs,
   stopSession,
   SUPPORT_RATE_PER_MINUTE,
 } from '../lib/chatStore'
-import { useLiveStore } from '../lib/useLiveStore'
+import { useSession } from '../lib/useChatData'
 import './chatTimer.css'
 
 const STATUS_LABEL = {
@@ -22,7 +21,7 @@ const STATUS_LABEL = {
 
 export default function ChatTimer({ conversationId }: { conversationId: string }) {
   const { currentUser } = useAuth()
-  const session = useLiveStore(() => getSession(conversationId), [conversationId])
+  const session = useSession(conversationId)
   const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {

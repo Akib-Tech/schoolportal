@@ -23,14 +23,17 @@ export default function SignupPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
 
   const strength = useMemo(() => passwordStrength(password), [password])
 
   if (currentUser) return <Navigate to="/chat" replace />
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const result = signup(name, email, password)
+    setSubmitting(true)
+    const result = await signup(name, email, password)
+    setSubmitting(false)
     if (!result.ok) {
       setError(result.error ?? 'Unable to create your account.')
       return
@@ -119,8 +122,8 @@ export default function SignupPage() {
           )}
         </label>
 
-        <button type="submit" className="btn btn-primary auth-submit">
-          Create account
+        <button type="submit" className="btn btn-primary auth-submit" disabled={submitting}>
+          {submitting ? 'Creating account…' : 'Create account'}
         </button>
         <p className="auth-fineprint">
           By continuing you agree to Aalone’s Terms and Privacy Policy.

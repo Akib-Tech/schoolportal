@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import AuthShell from './AuthShell'
 import { useAuth } from '../context/AuthContext'
-import { DEMO_ACCOUNTS } from '../lib/chatStore'
 
 export default function LoginPage() {
   const { currentUser, login } = useAuth()
@@ -13,26 +12,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [showDemo, setShowDemo] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   if (currentUser) {
     return <Navigate to={location.state?.from ?? '/chat'} replace />
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const result = login(email, password)
+    setSubmitting(true)
+    const result = await login(email, password)
+    setSubmitting(false)
     if (!result.ok) {
       setError(result.error ?? 'Unable to sign in.')
       return
     }
     navigate(location.state?.from ?? '/chat', { replace: true })
-  }
-
-  function applyDemo(demo: (typeof DEMO_ACCOUNTS)[number]) {
-    setEmail(demo.email)
-    setPassword(demo.password)
-    setError(null)
   }
 
   return (
@@ -92,28 +87,10 @@ export default function LoginPage() {
           </div>
         </label>
 
-        <button type="submit" className="btn btn-primary auth-submit">
-          Sign in
+        <button type="submit" className="btn btn-primary auth-submit" disabled={submitting}>
+          {submitting ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
-
-      <div className="auth-demo">
-        <button type="button" className="auth-demo-toggle" onClick={() => setShowDemo((v) => !v)}>
-          {showDemo ? 'Hide demo logins' : 'Use a demo login'}
-        </button>
-        {showDemo && (
-          <ul>
-            {DEMO_ACCOUNTS.map((d) => (
-              <li key={d.email}>
-                <button type="button" onClick={() => applyDemo(d)}>
-                  <strong>{d.label}</strong>
-                  <span>{d.email}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
     </AuthShell>
   )
 }

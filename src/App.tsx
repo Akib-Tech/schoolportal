@@ -12,9 +12,10 @@ import SignupPage from './pages/SignupPage'
 import './App.css'
 
 function RequireAuth({ children, roles }: { children: ReactNode; roles?: Role[] }) {
-  const { currentUser } = useAuth()
+  const { currentUser, authLoading } = useAuth()
   const location = useLocation()
 
+  if (authLoading) return null
   if (!currentUser) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />
   }

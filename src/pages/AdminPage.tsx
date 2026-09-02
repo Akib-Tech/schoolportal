@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { addPerson, getPeople, setRole, type Role } from '../lib/chatStore'
-import { useLiveStore } from '../lib/useLiveStore'
+import { invitePerson, setRole, type Role } from '../lib/chatStore'
+import { usePeople } from '../lib/useChatData'
 import './adminPage.css'
 
 const ROLE_LABEL: Record<Role, string> = {
@@ -13,19 +13,17 @@ const ROLE_LABEL: Record<Role, string> = {
 
 export default function AdminPage() {
   const { currentUser } = useAuth()
-  const people = useLiveStore(() => getPeople(), [])
-  const [name, setName] = useState('')
+  const people = usePeople()
   const [email, setEmail] = useState('')
 
   if (!currentUser || currentUser.role !== 'superadmin') {
     return <Navigate to="/" replace />
   }
 
-  function handleAdd(e: React.FormEvent) {
+  function handleInvite(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim() || !email.trim()) return
-    addPerson(name.trim(), email.trim(), 'user')
-    setName('')
+    if (!email.trim()) return
+    invitePerson(email.trim(), 'rep')
     setEmail('')
   }
 
@@ -73,22 +71,20 @@ export default function AdminPage() {
           </tbody>
         </table>
 
-        <form className="admin-add-form" onSubmit={handleAdd}>
-          <h2>Add a person</h2>
+        <form className="admin-add-form" onSubmit={handleInvite}>
+          <h2>Invite a customer care rep</h2>
+          <p className="admin-page-sub">
+            Enter an email that hasn't signed up yet — they'll get the rep role automatically
+            once they create their account. Already signed up? Use the table above instead.
+          </p>
           <div className="admin-add-fields">
-            <input
-              type="text"
-              placeholder="Full name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
             <input
               type="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <button type="submit" className="btn btn-primary">Add</button>
+            <button type="submit" className="btn btn-primary">Invite</button>
           </div>
         </form>
       </div>

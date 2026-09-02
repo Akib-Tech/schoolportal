@@ -1,50 +1,82 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import {
-  ensureSeeded,
-  getPeople,
-  getCurrentUserId,
   login as loginStore,
   logout as logoutStore,
+  onAuthChange,
+  provisionPerson,
   signup as signupStore,
-  STORE_UPDATE_EVENT,
+  subscribePerson,
   type AuthResult,
   type Person,
 } from '../lib/chatStore'
 
 interface AuthContextValue {
   currentUser: Person | null
-  login: (email: string, password: string) => AuthResult
-  signup: (name: string, email: string, password: string) => AuthResult
-  logout: () => void
+  authLoading: boolean
+  login: (email: string, password: string) => Promise<AuthResult>
+  signup: (name: string, email: string, password: string) => Promise<AuthResult>
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-ensureSeeded()
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [people, setPeople] = useState<Person[]>(() => getPeople())
-  const [currentUserId, setCurrentUserId] = useState<string | null>(() => getCurrentUserId())
+  const [currentUser, setCurrentUser] = useState<Person | null>(null)
+  const [authLoading, setAuthLoading] = useState(true)
 
   useEffect(() => {
-    const refresh = () => {
-      setPeople(getPeople())
-      setCurrentUserId(getCurrentUserId())
-    }
-    window.addEventListener(STORE_UPDATE_EVENT, refresh)
-    window.addEventListener('storage', refresh)
+    let unsubPerson: (() => void) | null = null
+
+    const unsubAuth = onAuthChange((user) => {
+      unsubPerson?.()
+      unsubPerson = null
+
+      if (!user) {
+        setCurrentUser(null)
+        setAuthLoading(false)
+        return
+      }
+
+      // A new uid just signed in — hold RequireAuth off until their profile
+      // doc has actually loaded, so it doesn't bounce them back to /login
+      // while currentUser is still stale from before.
+      setAuthLoading(true)
+      let provisioning = false
+      unsubPerson = subscribePerson(user.uid, (person) => {
+        if (person) {
+          setCurrentUser(person)
+          setAuthLoading(false)
+          return
+        }
+        // Auth account exists but its Firestore profile doesn't (e.g. an
+        // earlier signup's Firestore write failed after the Auth account
+        // was already created). Self-heal instead of bouncing forever.
+        if (provisioning) return
+        provisioning = true
+        const fallbackName = user.displayName || user.email?.split('@')[0] || 'New member'
+        provisionPerson(user.uid, user.email ?? '', fallbackName)
+          .catch((err) => {
+            console.error('Failed to provision profile for', user.uid, err)
+            setCurrentUser(null)
+            setAuthLoading(false)
+          })
+          .finally(() => {
+            provisioning = false
+          })
+      })
+    })
+
     return () => {
-      window.removeEventListener(STORE_UPDATE_EVENT, refresh)
-      window.removeEventListener('storage', refresh)
+      unsubAuth()
+      unsubPerson?.()
     }
   }, [])
-
-  const currentUser = people.find((p) => p.id === currentUserId) ?? null
 
   return (
     <AuthContext.Provider
       value={{
         currentUser,
+        authLoading,
         login: loginStore,
         signup: signupStore,
         logout: logoutStore,

@@ -1,3 +1,28 @@
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  type User,
+} from 'firebase/auth'
+import {
+  addDoc,
+  arrayUnion,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  orderBy,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+  type Unsubscribe,
+} from 'firebase/firestore'
+import { auth, db } from './firebase'
+
 export type Role = 'user' | 'rep' | 'superadmin'
 
 export interface Person {
@@ -5,8 +30,6 @@ export interface Person {
   name: string
   email: string
   role: Role
-  /** Prototype-only: plaintext password kept in localStorage. Not for production. */
-  password: string
 }
 
 export interface Message {
@@ -46,95 +69,91 @@ export interface ChatSession {
   events: SessionEvent[]
 }
 
-const PEOPLE_KEY = 'aalone_people_v2'
-const MESSAGES_KEY = 'aalone_messages'
-const SESSION_KEY = 'aalone_current_user_v2'
-const SESSIONS_KEY = 'aalone_chat_sessions'
-
-export const STORE_UPDATE_EVENT = 'aalone-store-update'
-
 /** Support desk billing rate. Charges aren't collected yet — this drives the estimate only. */
 export const SUPPORT_RATE_PER_MINUTE = 0.5
 export const SUPPORT_CURRENCY = 'USD'
 
-const SEED_PEOPLE: Person[] = [
-  { id: 'p-admin', name: 'Ada Okafor', email: 'ada.okafor@aalone.app', role: 'superadmin', password: 'admin1234' },
-  { id: 'p-rep', name: 'Chidi Nwosu', email: 'chidi.nwosu@aalone.app', role: 'rep', password: 'care1234' },
-  { id: 'p-user-1', name: 'Tunde Bakare', email: 'tunde.bakare@example.com', role: 'user', password: 'demo1234' },
-  { id: 'p-user-2', name: 'Ngozi Eze', email: 'ngozi.eze@example.com', role: 'user', password: 'demo1234' },
-]
+const peopleCol = collection(db, 'people')
+const messagesCol = collection(db, 'messages')
+const sessionsCol = collection(db, 'sessions')
+const invitesCol = collection(db, 'invites')
 
-/** Accounts shown in the "demo logins" helper on the sign-in screen. */
-export const DEMO_ACCOUNTS = [
-  { label: 'Super Admin', email: 'ada.okafor@aalone.app', password: 'admin1234' },
-  { label: 'Care Rep', email: 'chidi.nwosu@aalone.app', password: 'care1234' },
-  { label: 'User', email: 'tunde.bakare@example.com', password: 'demo1234' },
-]
-
-function readJSON<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key)
-    return raw ? (JSON.parse(raw) as T) : fallback
-  } catch {
-    return fallback
+function personFromDoc(id: string, data: Record<string, unknown>): Person {
+  return {
+    id,
+    name: (data.name as string) ?? '',
+    email: (data.email as string) ?? '',
+    role: (data.role as Role) ?? 'user',
   }
-}
-
-function writeJSON(key: string, value: unknown) {
-  localStorage.setItem(key, JSON.stringify(value))
-  window.dispatchEvent(new CustomEvent(STORE_UPDATE_EVENT))
-}
-
-export function ensureSeeded() {
-  if (!localStorage.getItem(PEOPLE_KEY)) {
-    localStorage.setItem(PEOPLE_KEY, JSON.stringify(SEED_PEOPLE))
-  }
-}
-
-export function getPeople(): Person[] {
-  return readJSON(PEOPLE_KEY, SEED_PEOPLE)
-}
-
-export function setRole(personId: string, role: Role) {
-  const people = getPeople().map((p) => (p.id === personId ? { ...p, role } : p))
-  writeJSON(PEOPLE_KEY, people)
-}
-
-export function addPerson(name: string, email: string, role: Role = 'user'): Person {
-  const person: Person = {
-    id: `p-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    name,
-    email,
-    role,
-    password: 'demo1234',
-  }
-  writeJSON(PEOPLE_KEY, [...getPeople(), person])
-  return person
 }
 
 /* ------------------------------------------------------------------ auth */
-
-export function getCurrentUserId(): string | null {
-  return localStorage.getItem(SESSION_KEY)
-}
 
 export interface AuthResult {
   ok: boolean
   error?: string
 }
 
-export function login(email: string, password: string): AuthResult {
-  const normalized = email.trim().toLowerCase()
-  const person = getPeople().find((p) => p.email.toLowerCase() === normalized)
-  if (!person || person.password !== password) {
-    return { ok: false, error: 'That email and password don’t match an account.' }
+function authErrorMessage(err: unknown): string {
+  const code = (err as { code?: string })?.code ?? ''
+  switch (code) {
+    case 'auth/invalid-email':
+      return 'Please enter a valid email address.'
+    case 'auth/email-already-in-use':
+      return 'An account with this email already exists.'
+    case 'auth/weak-password':
+      return 'Password must be at least 8 characters.'
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+      return 'That email and password don’t match an account.'
+    default:
+      return 'Something went wrong. Please try again.'
   }
-  localStorage.setItem(SESSION_KEY, person.id)
-  window.dispatchEvent(new CustomEvent(STORE_UPDATE_EVENT))
-  return { ok: true }
 }
 
-export function signup(name: string, email: string, password: string): AuthResult {
+export function onAuthChange(cb: (user: User | null) => void): Unsubscribe {
+  return onAuthStateChanged(auth, cb)
+}
+
+export async function fetchPerson(uid: string): Promise<Person | null> {
+  const snap = await getDoc(doc(peopleCol, uid))
+  return snap.exists() ? personFromDoc(snap.id, snap.data()) : null
+}
+
+export function subscribePerson(uid: string, cb: (person: Person | null) => void): Unsubscribe {
+  return onSnapshot(doc(peopleCol, uid), (snap) => {
+    cb(snap.exists() ? personFromDoc(snap.id, snap.data()) : null)
+  })
+}
+
+/**
+ * Creates the Firestore profile doc for an Auth user that doesn't have one
+ * yet — covers accounts orphaned by a signup that created the Auth user but
+ * failed partway through the Firestore write (e.g. a rules misconfiguration
+ * at the time). Applies any pending role invite, same as a normal signup.
+ */
+export async function provisionPerson(uid: string, email: string, name: string): Promise<Person> {
+  const normalized = email.trim().toLowerCase()
+  const inviteSnap = await getDoc(doc(invitesCol, normalized))
+  const role: Role = inviteSnap.exists() ? ((inviteSnap.data().role as Role) ?? 'user') : 'user'
+  if (inviteSnap.exists()) await deleteDoc(doc(invitesCol, normalized))
+
+  const person = { name, email: normalized, role }
+  await setDoc(doc(peopleCol, uid), person)
+  return { id: uid, ...person }
+}
+
+export async function login(email: string, password: string): Promise<AuthResult> {
+  try {
+    await signInWithEmailAndPassword(auth, email.trim(), password)
+    return { ok: true }
+  } catch (err) {
+    return { ok: false, error: authErrorMessage(err) }
+  }
+}
+
+export async function signup(name: string, email: string, password: string): Promise<AuthResult> {
   const trimmedName = name.trim()
   const normalized = email.trim().toLowerCase()
   if (trimmedName.length < 2) return { ok: false, error: 'Please enter your full name.' }
@@ -142,63 +161,106 @@ export function signup(name: string, email: string, password: string): AuthResul
     return { ok: false, error: 'Please enter a valid email address.' }
   }
   if (password.length < 8) return { ok: false, error: 'Password must be at least 8 characters.' }
-  if (getPeople().some((p) => p.email.toLowerCase() === normalized)) {
-    return { ok: false, error: 'An account with this email already exists.' }
+
+  try {
+    const credential = await createUserWithEmailAndPassword(auth, normalized, password)
+    await provisionPerson(credential.user.uid, normalized, trimmedName)
+    return { ok: true }
+  } catch (err) {
+    return { ok: false, error: authErrorMessage(err) }
   }
-  const person: Person = {
-    id: `p-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    name: trimmedName,
-    email: email.trim(),
-    role: 'user',
-    password,
-  }
-  writeJSON(PEOPLE_KEY, [...getPeople(), person])
-  localStorage.setItem(SESSION_KEY, person.id)
-  window.dispatchEvent(new CustomEvent(STORE_UPDATE_EVENT))
-  return { ok: true }
 }
 
-export function logout() {
-  localStorage.removeItem(SESSION_KEY)
-  window.dispatchEvent(new CustomEvent(STORE_UPDATE_EVENT))
+export async function logout() {
+  await signOut(auth)
+}
+
+/* ------------------------------------------------------------------ people */
+
+export function subscribePeople(cb: (people: Person[]) => void): Unsubscribe {
+  return onSnapshot(peopleCol, (snap) => {
+    cb(snap.docs.map((d) => personFromDoc(d.id, d.data())))
+  })
+}
+
+export async function setRole(personId: string, role: Role) {
+  await updateDoc(doc(peopleCol, personId), { role })
+}
+
+/**
+ * Pre-assigns a role for an email that hasn't signed up yet. When that email
+ * creates an account, the role is applied automatically. If the person has
+ * already signed up, their role is updated immediately instead.
+ */
+export async function invitePerson(email: string, role: Role = 'user') {
+  const normalized = email.trim().toLowerCase()
+  const existing = await getDocByEmail(normalized)
+  if (existing) {
+    await setRole(existing.id, role)
+    return
+  }
+  await setDoc(doc(invitesCol, normalized), { role, createdAt: Date.now() })
+}
+
+async function getDocByEmail(normalized: string): Promise<Person | null> {
+  const snap = await getDocs(query(peopleCol, where('email', '==', normalized)))
+  const found = snap.docs[0]
+  return found ? personFromDoc(found.id, found.data()) : null
 }
 
 /* -------------------------------------------------------------- messages */
 
-export function getMessages(): Message[] {
-  return readJSON(MESSAGES_KEY, [])
+function messageFromDoc(id: string, data: Record<string, unknown>): Message {
+  return {
+    id,
+    conversationId: data.conversationId as string,
+    senderId: data.senderId as string,
+    senderRole: data.senderRole as Role,
+    senderName: data.senderName as string,
+    text: data.text as string,
+    createdAt: data.createdAt as number,
+  }
 }
 
-export function getConversation(conversationId: string): Message[] {
-  return getMessages()
-    .filter((m) => m.conversationId === conversationId)
-    .sort((a, b) => a.createdAt - b.createdAt)
+export function subscribeConversation(
+  conversationId: string,
+  cb: (messages: Message[]) => void,
+): Unsubscribe {
+  const q = query(
+    messagesCol,
+    where('conversationId', '==', conversationId),
+    orderBy('createdAt', 'asc'),
+  )
+  return onSnapshot(q, (snap) => {
+    cb(snap.docs.map((d) => messageFromDoc(d.id, d.data())))
+  })
 }
 
-export function sendMessage(conversationId: string, sender: Person, text: string): Message | null {
+export function subscribeAllMessages(cb: (messages: Message[]) => void): Unsubscribe {
+  return onSnapshot(messagesCol, (snap) => {
+    cb(snap.docs.map((d) => messageFromDoc(d.id, d.data())))
+  })
+}
+
+export async function sendMessage(conversationId: string, sender: Person, text: string) {
   const trimmed = text.trim()
-  if (!trimmed) return null
+  if (!trimmed) return
 
-  const session = getSession(conversationId)
-  if (session && session.status !== 'active') return null
+  const session = await fetchSession(conversationId)
+  if (session && session.status !== 'active') return
 
-  const message: Message = {
-    id: `m-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+  await addDoc(messagesCol, {
     conversationId,
     senderId: sender.id,
     senderRole: sender.role,
     senderName: sender.name,
     text: trimmed,
     createdAt: Date.now(),
-  }
-  writeJSON(MESSAGES_KEY, [...getMessages(), message])
-  if (!session) startSession(conversationId, sender)
-  return message
+  })
+  if (!session) await startSession(conversationId, sender)
 }
 
-export function listConversations(): ConversationSummary[] {
-  const people = getPeople()
-  const messages = getMessages()
+export function deriveConversations(people: Person[], messages: Message[]): ConversationSummary[] {
   const byUser = new Map<string, Message[]>()
   for (const m of messages) {
     const list = byUser.get(m.conversationId) ?? []
@@ -216,27 +278,40 @@ export function listConversations(): ConversationSummary[] {
 
 /* --------------------------------------------------- chat timer sessions */
 
-function getSessions(): Record<string, ChatSession> {
-  return readJSON<Record<string, ChatSession>>(SESSIONS_KEY, {})
+function sessionFromDoc(id: string, data: Record<string, unknown>): ChatSession {
+  return {
+    conversationId: id,
+    status: data.status as SessionStatus,
+    runStartedAt: (data.runStartedAt as number | null) ?? null,
+    accumulatedMs: (data.accumulatedMs as number) ?? 0,
+    ratePerMinute: (data.ratePerMinute as number) ?? SUPPORT_RATE_PER_MINUTE,
+    createdAt: data.createdAt as number,
+    updatedAt: data.updatedAt as number,
+    events: (data.events as SessionEvent[]) ?? [],
+  }
 }
 
-function writeSessions(map: Record<string, ChatSession>) {
-  writeJSON(SESSIONS_KEY, map)
+export function subscribeSession(
+  conversationId: string,
+  cb: (session: ChatSession | null) => void,
+): Unsubscribe {
+  return onSnapshot(doc(sessionsCol, conversationId), (snap) => {
+    cb(snap.exists() ? sessionFromDoc(snap.id, snap.data()) : null)
+  })
 }
 
-export function getSession(conversationId: string): ChatSession | null {
-  return getSessions()[conversationId] ?? null
+export async function fetchSession(conversationId: string): Promise<ChatSession | null> {
+  const snap = await getDoc(doc(sessionsCol, conversationId))
+  return snap.exists() ? sessionFromDoc(snap.id, snap.data()) : null
 }
 
-export function startSession(conversationId: string, by: Person): ChatSession {
-  const map = getSessions()
-  const existing = map[conversationId]
+export async function startSession(conversationId: string, by: Person) {
+  const existing = await fetchSession(conversationId)
   if (existing && existing.status !== 'ended') return existing
 
   const now = Date.now()
-  const session: ChatSession = {
-    conversationId,
-    status: 'active',
+  const session = {
+    status: 'active' as SessionStatus,
     runStartedAt: now,
     accumulatedMs: 0,
     ratePerMinute: SUPPORT_RATE_PER_MINUTE,
@@ -244,47 +319,46 @@ export function startSession(conversationId: string, by: Person): ChatSession {
     updatedAt: now,
     events: [{ action: 'start', at: now, byId: by.id, byName: by.name }],
   }
-  map[conversationId] = session
-  writeSessions(map)
-  return session
+  await setDoc(doc(sessionsCol, conversationId), session)
+  return { conversationId, ...session }
 }
 
-export function pauseSession(conversationId: string, by: Person) {
-  const map = getSessions()
-  const s = map[conversationId]
+export async function pauseSession(conversationId: string, by: Person) {
+  const s = await fetchSession(conversationId)
   if (!s || s.status !== 'active') return
   const now = Date.now()
-  s.accumulatedMs = sessionElapsedMs(s, now)
-  s.status = 'paused'
-  s.runStartedAt = null
-  s.updatedAt = now
-  s.events.push({ action: 'pause', at: now, byId: by.id, byName: by.name })
-  writeSessions(map)
+  await updateDoc(doc(sessionsCol, conversationId), {
+    accumulatedMs: sessionElapsedMs(s, now),
+    status: 'paused',
+    runStartedAt: null,
+    updatedAt: now,
+    events: arrayUnion({ action: 'pause', at: now, byId: by.id, byName: by.name }),
+  })
 }
 
-export function resumeSession(conversationId: string, by: Person) {
-  const map = getSessions()
-  const s = map[conversationId]
+export async function resumeSession(conversationId: string, by: Person) {
+  const s = await fetchSession(conversationId)
   if (!s || s.status !== 'paused') return
   const now = Date.now()
-  s.status = 'active'
-  s.runStartedAt = now
-  s.updatedAt = now
-  s.events.push({ action: 'resume', at: now, byId: by.id, byName: by.name })
-  writeSessions(map)
+  await updateDoc(doc(sessionsCol, conversationId), {
+    status: 'active',
+    runStartedAt: now,
+    updatedAt: now,
+    events: arrayUnion({ action: 'resume', at: now, byId: by.id, byName: by.name }),
+  })
 }
 
-export function stopSession(conversationId: string, by: Person) {
-  const map = getSessions()
-  const s = map[conversationId]
+export async function stopSession(conversationId: string, by: Person) {
+  const s = await fetchSession(conversationId)
   if (!s || s.status === 'ended') return
   const now = Date.now()
-  s.accumulatedMs = sessionElapsedMs(s, now)
-  s.status = 'ended'
-  s.runStartedAt = null
-  s.updatedAt = now
-  s.events.push({ action: 'stop', at: now, byId: by.id, byName: by.name })
-  writeSessions(map)
+  await updateDoc(doc(sessionsCol, conversationId), {
+    accumulatedMs: sessionElapsedMs(s, now),
+    status: 'ended',
+    runStartedAt: null,
+    updatedAt: now,
+    events: arrayUnion({ action: 'stop', at: now, byId: by.id, byName: by.name }),
+  })
 }
 
 /** Total elapsed billable time in ms, including the current running stretch. */
@@ -309,6 +383,10 @@ export function formatClock(ms: number): string {
   const sec = totalSec % 60
   const pad = (n: number) => String(n).padStart(2, '0')
   return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${pad(m)}:${pad(sec)}`
+}
+
+export function formatTime(ts: number): string {
+  return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
 export function formatMoney(amount: number): string {

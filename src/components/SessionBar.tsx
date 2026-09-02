@@ -19,8 +19,8 @@ export default function SessionBar() {
 
   const isStaff = currentUser.role === 'rep' || currentUser.role === 'superadmin'
 
-  function handleLogout() {
-    logout()
+  async function handleLogout() {
+    await logout()
     navigate('/login')
   }
 

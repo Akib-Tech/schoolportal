@@ -3,15 +3,15 @@ import { Link } from 'react-router-dom'
 import Logo from '../components/Logo'
 import ChatTimer from '../components/ChatTimer'
 import { useAuth } from '../context/AuthContext'
-import { getConversation, getSession, sendMessage, startSession } from '../lib/chatStore'
-import { useLiveStore } from '../lib/useLiveStore'
+import { formatTime, sendMessage, startSession } from '../lib/chatStore'
+import { useConversation, useSession } from '../lib/useChatData'
 import './chatPage.css'
 
 export default function ChatPage() {
   const { currentUser } = useAuth()
   const conversationId = currentUser?.id ?? ''
-  const messages = useLiveStore(() => getConversation(conversationId), [conversationId])
-  const session = useLiveStore(() => getSession(conversationId), [conversationId])
+  const messages = useConversation(conversationId)
+  const session = useSession(conversationId)
   const [draft, setDraft] = useState('')
   const endRef = useRef<HTMLDivElement>(null)
 
@@ -28,8 +28,8 @@ export default function ChatPage() {
   function handleSend(e: React.FormEvent) {
     e.preventDefault()
     if (!draft.trim() || locked || !currentUser) return
-    const sent = sendMessage(conversationId, currentUser, draft)
-    if (sent) setDraft('')
+    sendMessage(conversationId, currentUser, draft)
+    setDraft('')
   }
 
   return (
@@ -64,13 +64,14 @@ export default function ChatPage() {
               </p>
             )}
             {messages.map((m) => {
-              
+
               const isMine = m.senderRole === 'user'
               return (
                 <div key={m.id} className={`chat-bubble-row ${isMine ? 'is-mine' : 'is-support'}`}>
                   <div className="chat-bubble">
                     {!isMine && <span className="chat-bubble-sender">{m.senderName}</span>}
                     <p>{m.text}</p>
+                    <span className="chat-bubble-time">{formatTime(m.createdAt)}</span>
                   </div>
                 </div>
               )
