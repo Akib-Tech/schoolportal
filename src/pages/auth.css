@@ -278,6 +278,54 @@
   text-decoration: underline;
 }
 
+/* ------------------------------------------------------------------ google */
+
+.auth-google {
+  margin-top: 18px;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  color: var(--text-soft);
+  font-size: 12.5px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.auth-google-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--white);
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-h);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.auth-google-btn:hover:not(:disabled) {
+  border-color: var(--forest);
+  background: var(--mint-100);
+}
+
+.auth-google-btn:disabled {
+  opacity: 0.6;
+}
+
 /* ------------------------------------------------------------- demo logins */
 
 .auth-demo {

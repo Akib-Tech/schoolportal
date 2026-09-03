@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import AuthShell from './AuthShell'
+import GoogleSignInButton from '../components/GoogleSignInButton'
 import { useAuth } from '../context/AuthContext'
 
 export default function LoginPage() {
@@ -91,6 +92,8 @@ export default function LoginPage() {
           {submitting ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
+
+      <GoogleSignInButton redirectTo={location.state?.from ?? '/chat'} />
     </AuthShell>
   )
 }

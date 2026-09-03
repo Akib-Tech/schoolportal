@@ -1,7 +1,9 @@
 import {
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   type User,
 } from 'firebase/auth'
@@ -107,6 +109,13 @@ function authErrorMessage(err: unknown): string {
     case 'auth/wrong-password':
     case 'auth/user-not-found':
       return 'That email and password don’t match an account.'
+    case 'auth/popup-closed-by-user':
+    case 'auth/cancelled-popup-request':
+      return ''
+    case 'auth/popup-blocked':
+      return 'Your browser blocked the sign-in popup. Please allow popups for this site and try again.'
+    case 'auth/account-exists-with-different-credential':
+      return 'An account already exists with this email using a different sign-in method.'
     default:
       return 'Something went wrong. Please try again.'
   }
@@ -147,6 +156,21 @@ export async function provisionPerson(uid: string, email: string, name: string):
 export async function login(email: string, password: string): Promise<AuthResult> {
   try {
     await signInWithEmailAndPassword(auth, email.trim(), password)
+    return { ok: true }
+  } catch (err) {
+    return { ok: false, error: authErrorMessage(err) }
+  }
+}
+
+/**
+ * Signs in (or, for a first-time Google user, signs up) via a Google popup.
+ * A brand-new user's Firestore profile is created automatically by
+ * AuthContext's self-heal path, using their Google name — no separate
+ * signup step needed here.
+ */
+export async function signInWithGoogle(): Promise<AuthResult> {
+  try {
+    await signInWithPopup(auth, new GoogleAuthProvider())
     return { ok: true }
   } catch (err) {
     return { ok: false, error: authErrorMessage(err) }

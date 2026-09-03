@@ -4,6 +4,7 @@ import {
   logout as logoutStore,
   onAuthChange,
   provisionPerson,
+  signInWithGoogle as signInWithGoogleStore,
   signup as signupStore,
   subscribePerson,
   type AuthResult,
@@ -15,6 +16,7 @@ interface AuthContextValue {
   authLoading: boolean
   login: (email: string, password: string) => Promise<AuthResult>
   signup: (name: string, email: string, password: string) => Promise<AuthResult>
+  signInWithGoogle: () => Promise<AuthResult>
   logout: () => Promise<void>
 }
 
@@ -79,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         authLoading,
         login: loginStore,
         signup: signupStore,
+        signInWithGoogle: signInWithGoogleStore,
         logout: logoutStore,
       }}
     >

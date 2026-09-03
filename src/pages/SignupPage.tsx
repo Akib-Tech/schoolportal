@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import AuthShell from './AuthShell'
+import GoogleSignInButton from '../components/GoogleSignInButton'
 import { useAuth } from '../context/AuthContext'
 
 function passwordStrength(pw: string): { score: number; label: string } {
@@ -129,6 +130,8 @@ export default function SignupPage() {
           By continuing you agree to Aalone’s Terms and Privacy Policy.
         </p>
       </form>
+
+      <GoogleSignInButton redirectTo="/chat" />
     </AuthShell>
   )
 }
