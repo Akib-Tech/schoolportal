@@ -56,5 +56,11 @@ service cloud.firestore {
       allow write: if signedIn() &&
         (conversationId == request.auth.uid || isStaff());
     }
+
+    // Per-viewer "last read" markers for the notification bell. Each signed-in
+    // user owns exactly one doc (keyed by their uid) and nobody else can touch it.
+    match /reads/{userId} {
+      allow read, write: if signedIn() && request.auth.uid == userId;
+    }
   }
 }

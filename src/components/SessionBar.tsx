@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import NotificationBell from './NotificationBell'
 import './sessionBar.css'
 
 const ROLE_LABEL: Record<string, string> = {
@@ -38,6 +39,7 @@ export default function SessionBar() {
         </span>
 
         <nav className="session-bar-links">
+          <NotificationBell />
           <Link to="/">Home</Link>
           <Link to="/chat">Chat</Link>
           {isStaff && <Link to="/rep">Rep Inbox</Link>}

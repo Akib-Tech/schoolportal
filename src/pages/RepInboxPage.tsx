@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useSearchParams } from 'react-router-dom'
 import ChatTimer from '../components/ChatTimer'
 import { useAuth } from '../context/AuthContext'
-import { formatTime, sendMessage, startSession } from '../lib/chatStore'
+import { formatTime, markConversationRead, sendMessage, startSession } from '../lib/chatStore'
 import { useConversation, useConversations, usePeople, useSession } from '../lib/useChatData'
 import './repInbox.css'
 
@@ -10,11 +10,13 @@ export default function RepInboxPage() {
   const { currentUser } = useAuth()
   const conversations = useConversations()
   const people = usePeople()
+  const [searchParams] = useSearchParams()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [draft, setDraft] = useState('')
   const endRef = useRef<HTMLDivElement>(null)
 
-  const activeId = selectedId ?? conversations[0]?.userId ?? null
+  // `?c=<id>` deep link from a notification wins until the rep picks another thread.
+  const activeId = selectedId ?? searchParams.get('c') ?? conversations[0]?.userId ?? null
   const messages = useConversation(activeId ?? '')
   const session = useSession(activeId ?? '')
   const activePerson = people.find((p) => p.id === activeId)
@@ -22,6 +24,13 @@ export default function RepInboxPage() {
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: 'end' })
   }, [messages.length])
+
+  // Opening a thread clears its notifications for this staff member.
+  const lastMessageAt = messages[messages.length - 1]?.createdAt
+  useEffect(() => {
+    if (!currentUser || !activeId || !lastMessageAt) return
+    markConversationRead(currentUser.id, activeId)
+  }, [currentUser, activeId, lastMessageAt])
 
   if (!currentUser) return <Navigate to="/login" replace />
   if (currentUser.role !== 'rep' && currentUser.role !== 'superadmin') {

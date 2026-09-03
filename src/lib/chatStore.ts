@@ -49,6 +49,15 @@ export interface ConversationSummary {
   lastMessage?: Message
 }
 
+/** One unread thread surfaced in the notification bell. */
+export interface ChatNotification {
+  conversationId: string
+  /** The other party — the member's name for staff, "Aalone Support" for a member. */
+  personName: string
+  lastMessage: Message
+  unreadCount: number
+}
+
 export type SessionStatus = 'active' | 'paused' | 'ended'
 
 export interface SessionEvent {
@@ -79,6 +88,7 @@ const peopleCol = collection(db, 'people')
 const messagesCol = collection(db, 'messages')
 const sessionsCol = collection(db, 'sessions')
 const invitesCol = collection(db, 'invites')
+const readsCol = collection(db, 'reads')
 
 function personFromDoc(id: string, data: Record<string, unknown>): Person {
   return {
@@ -298,6 +308,78 @@ export function deriveConversations(people: Person[], messages: Message[]): Conv
       return { userId: p.id, lastMessage: list[list.length - 1] }
     })
     .sort((a, b) => (b.lastMessage?.createdAt ?? 0) - (a.lastMessage?.createdAt ?? 0))
+}
+
+/* --------------------------------------------------- read state / notifications */
+
+/** conversationId -> timestamp (ms) the viewer last read that thread. */
+export type ReadState = Record<string, number>
+
+export function subscribeReadState(
+  userId: string,
+  cb: (seen: ReadState) => void,
+): Unsubscribe {
+  return onSnapshot(doc(readsCol, userId), (snap) => {
+    cb((snap.data()?.seen as ReadState) ?? {})
+  })
+}
+
+/** Marks a thread read up to `at` for one viewer. Safe to call repeatedly. */
+export async function markConversationRead(
+  userId: string,
+  conversationId: string,
+  at: number = Date.now(),
+) {
+  await setDoc(doc(readsCol, userId), { seen: { [conversationId]: at } }, { merge: true })
+}
+
+/**
+ * Builds the notification list for a viewer:
+ * - staff see every thread with an unread message from the member;
+ * - a member sees their own thread when support has replied since they last looked.
+ */
+export function deriveNotifications(
+  viewer: Person,
+  people: Person[],
+  messages: Message[],
+  seen: ReadState,
+): ChatNotification[] {
+  const isStaff = viewer.role === 'rep' || viewer.role === 'superadmin'
+
+  const byConversation = new Map<string, Message[]>()
+  for (const m of messages) {
+    // A member only ever has their own thread; ignore anything else.
+    if (!isStaff && m.conversationId !== viewer.id) continue
+    const list = byConversation.get(m.conversationId) ?? []
+    list.push(m)
+    byConversation.set(m.conversationId, list)
+  }
+
+  const items: ChatNotification[] = []
+  for (const [conversationId, list] of byConversation) {
+    list.sort((a, b) => a.createdAt - b.createdAt)
+    const lastMessage = list[list.length - 1]
+    if (!lastMessage) continue
+
+    const since = seen[conversationId] ?? 0
+    const unread = list.filter(
+      (m) =>
+        m.createdAt > since &&
+        (isStaff ? m.senderRole === 'user' : m.senderRole !== 'user'),
+    )
+    if (unread.length === 0) continue
+
+    items.push({
+      conversationId,
+      personName: isStaff
+        ? people.find((p) => p.id === conversationId)?.name ?? 'Unknown member'
+        : 'Aalone Support',
+      lastMessage,
+      unreadCount: unread.length,
+    })
+  }
+
+  return items.sort((a, b) => b.lastMessage.createdAt - a.lastMessage.createdAt)
 }
 
 /* --------------------------------------------------- chat timer sessions */

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import Logo from '../components/Logo'
 import ChatTimer from '../components/ChatTimer'
 import { useAuth } from '../context/AuthContext'
-import { formatTime, sendMessage, startSession } from '../lib/chatStore'
+import { formatTime, markConversationRead, sendMessage, startSession } from '../lib/chatStore'
 import { useConversation, useSession } from '../lib/useChatData'
 import './chatPage.css'
 
@@ -18,6 +18,14 @@ export default function ChatPage() {
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: 'end' })
   }, [messages.length])
+
+  // Viewing the thread clears its notifications, including any reply that
+  // lands while this page is open.
+  const lastMessageAt = messages[messages.length - 1]?.createdAt
+  useEffect(() => {
+    if (!currentUser || !lastMessageAt) return
+    markConversationRead(currentUser.id, conversationId)
+  }, [currentUser, conversationId, lastMessageAt])
 
   if (!currentUser) return null
 
