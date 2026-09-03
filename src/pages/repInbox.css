@@ -67,9 +67,35 @@
 }
 
 .rep-inbox-thread header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 18px 24px;
   border-bottom: 1px solid var(--border);
   background: var(--white);
+}
+
+.rep-inbox-back {
+  display: none;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-left: -6px;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--forest);
+  cursor: pointer;
+}
+
+.rep-inbox-back svg {
+  transform: rotate(180deg);
+}
+
+.rep-inbox-back:hover {
+  background: var(--mint-100);
 }
 
 .rep-inbox-thread header h1 {
@@ -222,6 +248,9 @@
 }
 
 .rep-inbox-empty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   color: var(--text-soft);
   font-size: 14px;
   padding: 22px;
@@ -230,10 +259,30 @@
 @media (max-width: 800px) {
   .rep-inbox {
     grid-template-columns: 1fr;
+    /* The list can be long; letting the whole page grow to fit it means the
+       rep scrolls past every conversation to reach the open chat. Pin the
+       viewport instead and swap which pane is on screen. */
+    height: 100svh;
+    min-height: 0;
+    grid-auto-rows: minmax(0, 1fr);
+    overflow: hidden;
   }
 
   .rep-inbox-list {
+    min-height: 0;
     border-right: none;
     border-bottom: 1px solid var(--border);
+  }
+
+  .rep-inbox-back {
+    display: inline-flex;
+  }
+
+  .rep-inbox[data-mobile-view='list'] .rep-inbox-thread {
+    display: none;
+  }
+
+  .rep-inbox[data-mobile-view='thread'] .rep-inbox-list {
+    display: none;
   }
 }

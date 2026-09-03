@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Logo from '../components/Logo'
 import ChatTimer from '../components/ChatTimer'
+import TypingIndicator from '../components/TypingIndicator'
 import { useAuth } from '../context/AuthContext'
 import { formatTime, markConversationRead, sendMessage, startSession } from '../lib/chatStore'
 import { setActiveConversation } from '../lib/notificationAlerts'
-import { useConversation, useSession } from '../lib/useChatData'
+import { useConversation, useSession, useTyping, useTypingBroadcast } from '../lib/useChatData'
 import './chatPage.css'
 
 export default function ChatPage() {
@@ -13,12 +14,14 @@ export default function ChatPage() {
   const conversationId = currentUser?.id ?? ''
   const messages = useConversation(conversationId)
   const session = useSession(conversationId)
+  const { staffTyping, staffName } = useTyping(conversationId)
+  const { ping: pingTyping, stop: stopTyping } = useTypingBroadcast(conversationId, currentUser)
   const [draft, setDraft] = useState('')
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: 'end' })
-  }, [messages.length])
+  }, [messages.length, staffTyping])
 
   // Viewing the thread clears its notifications, including any reply that
   // lands while this page is open.
@@ -45,6 +48,14 @@ export default function ChatPage() {
     if (!draft.trim() || locked || !currentUser) return
     sendMessage(conversationId, currentUser, draft)
     setDraft('')
+    stopTyping()
+  }
+
+  function handleDraftChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value
+    setDraft(value)
+    if (value.trim()) pingTyping()
+    else stopTyping()
   }
 
   return (
@@ -91,6 +102,7 @@ export default function ChatPage() {
                 </div>
               )
             })}
+            {staffTyping && <TypingIndicator name={staffName || 'Aalone Support'} />}
             <div ref={endRef} />
           </div>
 
@@ -111,7 +123,8 @@ export default function ChatPage() {
                 type="text"
                 placeholder={paused ? 'Chat paused — resume to continue' : 'Type your message…'}
                 value={draft}
-                onChange={(e) => setDraft(e.target.value)}
+                onChange={handleDraftChange}
+                onBlur={stopTyping}
                 disabled={paused}
               />
               <button type="submit" className="btn btn-primary" disabled={!draft.trim() || locked}>

@@ -62,5 +62,13 @@ service cloud.firestore {
     match /reads/{userId} {
       allow read, write: if signedIn() && request.auth.uid == userId;
     }
+
+    // Ephemeral "is typing" heartbeats, one doc per conversation. Same access
+    // shape as sessions/: the member owns their own thread, staff own all.
+    match /typing/{conversationId} {
+      allow read: if signedIn();
+      allow write: if signedIn() &&
+        (conversationId == request.auth.uid || isStaff());
+    }
   }
 }

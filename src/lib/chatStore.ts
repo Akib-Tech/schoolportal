@@ -382,6 +382,51 @@ export function deriveNotifications(
   return items.sort((a, b) => b.lastMessage.createdAt - a.lastMessage.createdAt)
 }
 
+/* --------------------------------------------------- typing indicator */
+
+/**
+ * One doc per conversation (`typing/{conversationId}`). Each side writes a
+ * heartbeat timestamp while it's typing and clears it on stop/send; readers
+ * treat a heartbeat older than ~6s as stale (covers a tab that closed
+ * mid-type without clearing).
+ */
+export interface TypingState {
+  /** Last heartbeat from the member, ms. null when not typing. */
+  userAt: number | null
+  /** Last heartbeat from a staff member, ms. null when not typing. */
+  staffAt: number | null
+  /** Name of the staff member currently typing, if any. */
+  staffName: string | null
+}
+
+export const TYPING_STALE_MS = 6000
+
+const typingCol = collection(db, 'typing')
+
+export function subscribeTyping(
+  conversationId: string,
+  cb: (state: TypingState) => void,
+): Unsubscribe {
+  return onSnapshot(doc(typingCol, conversationId), (snap) => {
+    const d = snap.data()
+    cb({
+      userAt: (d?.userAt as number | null) ?? null,
+      staffAt: (d?.staffAt as number | null) ?? null,
+      staffName: (d?.staffName as string | null) ?? null,
+    })
+  })
+}
+
+/** Writes (or clears) the typing heartbeat for one side of a conversation. */
+export async function setTyping(conversationId: string, actor: Person, typing: boolean) {
+  const isStaff = actor.role === 'rep' || actor.role === 'superadmin'
+  const patch: Record<string, unknown> = {
+    [isStaff ? 'staffAt' : 'userAt']: typing ? Date.now() : null,
+  }
+  if (isStaff) patch.staffName = typing ? actor.name : null
+  await setDoc(doc(typingCol, conversationId), patch, { merge: true })
+}
+
 /* --------------------------------------------------- chat timer sessions */
 
 function sessionFromDoc(id: string, data: Record<string, unknown>): ChatSession {
