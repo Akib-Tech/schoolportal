@@ -4,6 +4,7 @@ import Logo from '../components/Logo'
 import ChatTimer from '../components/ChatTimer'
 import { useAuth } from '../context/AuthContext'
 import { formatTime, markConversationRead, sendMessage, startSession } from '../lib/chatStore'
+import { setActiveConversation } from '../lib/notificationAlerts'
 import { useConversation, useSession } from '../lib/useChatData'
 import './chatPage.css'
 
@@ -26,6 +27,12 @@ export default function ChatPage() {
     if (!currentUser || !lastMessageAt) return
     markConversationRead(currentUser.id, conversationId)
   }, [currentUser, conversationId, lastMessageAt])
+
+  // Tell the alerter which thread is on screen so it stays quiet for it.
+  useEffect(() => {
+    setActiveConversation(conversationId)
+    return () => setActiveConversation(null)
+  }, [conversationId])
 
   if (!currentUser) return null
 

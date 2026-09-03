@@ -151,3 +151,29 @@
 .notif-panel-mute[aria-pressed='true'] {
   color: var(--forest);
 }
+
+/* On narrow screens the bell sits near the left edge, so a right-anchored
+   panel would run off screen. Anchor it to the session bar and span the
+   viewport width instead. */
+@media (max-width: 640px) {
+  .session-bar {
+    position: relative;
+  }
+
+  .notif-bell {
+    position: static;
+  }
+
+  .notif-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+  }
+
+  .notif-panel ul {
+    max-height: 60vh;
+  }
+}

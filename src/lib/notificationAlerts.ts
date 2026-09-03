@@ -3,9 +3,24 @@
 // and degrades silently — none of this needs a backend or a service worker,
 // and it only works while an Aalone tab is open somewhere.
 
+/* ------------------------------------------- currently-open conversation */
+
+// The chat pages register the thread on screen here so the alerter can stay
+// quiet for a message that just landed in the conversation you're reading.
+let activeConversationId: string | null = null
+
+export function setActiveConversation(id: string | null) {
+  activeConversationId = id
+}
+
+export function getActiveConversation(): string | null {
+  return activeConversationId
+}
+
 /* ------------------------------------------------------------------ chime */
 
 let audioCtx: AudioContext | null = null
+let audioUnlocked = false
 
 function ensureAudio(): AudioContext | null {
   if (audioCtx) return audioCtx
@@ -21,13 +36,22 @@ function ensureAudio(): AudioContext | null {
   return audioCtx
 }
 
-/** Call from a user-gesture handler so the chime is allowed to play later. */
+/**
+ * Call from a user-gesture handler. Creating/resuming the AudioContext here
+ * (rather than lazily on the first message) keeps the browser from logging an
+ * autoplay warning and guarantees the chime is audible later.
+ */
 export function unlockAudio() {
-  ensureAudio()?.resume().catch(() => {})
+  const ctx = ensureAudio()
+  if (!ctx) return
+  ctx.resume().then(() => {
+    audioUnlocked = true
+  }).catch(() => {})
 }
 
 /** A short two-note "ding" via the Web Audio API — no asset to ship. */
 export function playChime() {
+  if (!audioUnlocked) return // no user gesture yet — a silent no-op beats a console warning
   const ctx = ensureAudio()
   if (!ctx) return
   ctx.resume().catch(() => {})

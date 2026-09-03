@@ -3,6 +3,7 @@ import { Navigate, useSearchParams } from 'react-router-dom'
 import ChatTimer from '../components/ChatTimer'
 import { useAuth } from '../context/AuthContext'
 import { formatTime, markConversationRead, sendMessage, startSession } from '../lib/chatStore'
+import { setActiveConversation } from '../lib/notificationAlerts'
 import { useConversation, useConversations, usePeople, useSession } from '../lib/useChatData'
 import './repInbox.css'
 
@@ -31,6 +32,12 @@ export default function RepInboxPage() {
     if (!currentUser || !activeId || !lastMessageAt) return
     markConversationRead(currentUser.id, activeId)
   }, [currentUser, activeId, lastMessageAt])
+
+  // Tell the alerter which thread is on screen so it stays quiet for it.
+  useEffect(() => {
+    setActiveConversation(activeId)
+    return () => setActiveConversation(null)
+  }, [activeId])
 
   if (!currentUser) return <Navigate to="/login" replace />
   if (currentUser.role !== 'rep' && currentUser.role !== 'superadmin') {

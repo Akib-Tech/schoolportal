@@ -5,6 +5,7 @@ import { formatTime } from '../lib/chatStore'
 import {
   ensureNotifyPermission,
   flashTitle,
+  getActiveConversation,
   playChime,
   showNotification,
   stopFlashTitle,
@@ -88,7 +89,9 @@ export default function NotificationBell() {
     }
   }, [])
 
-  // Alert when a genuinely newer message arrives while the tab isn't focused.
+  // Alert when a genuinely newer message arrives. The chime plays unless you're
+  // already reading that exact thread; the OS toast + title flash only fire when
+  // the tab isn't focused (no point shouting at someone who's looking at it).
   const latestAt = items.reduce((max, it) => Math.max(max, it.lastMessage.createdAt), 0)
   const alertedAt = useRef<number | null>(null)
   useEffect(() => {
@@ -100,20 +103,24 @@ export default function NotificationBell() {
     if (latestAt <= alertedAt.current) return
     alertedAt.current = latestAt
 
-    const focused = document.visibilityState === 'visible' && document.hasFocus()
-    if (focused) return
-
     const newest = items[0] // items are sorted newest-first
     if (!newest) return
+
+    const focused = document.visibilityState === 'visible' && document.hasFocus()
+    const readingThisThread = focused && getActiveConversation() === newest.conversationId
+    if (readingThisThread) return
+
     const label = isStaff
       ? `New message from ${newest.personName}`
       : 'New reply from Aalone Support'
 
     if (!muted) playChime()
-    showNotification(label, newest.lastMessage.text, () =>
-      navigate(isStaff ? `/rep?c=${newest.conversationId}` : '/chat'),
-    )
-    flashTitle(`● ${label}`)
+    if (!focused) {
+      showNotification(label, newest.lastMessage.text, () =>
+        navigate(isStaff ? `/rep?c=${newest.conversationId}` : '/chat'),
+      )
+      flashTitle(`● ${label}`)
+    }
   }, [latestAt, items, isStaff, muted, navigate])
 
   if (!currentUser) return null
